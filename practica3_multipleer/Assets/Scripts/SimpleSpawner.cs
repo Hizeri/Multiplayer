@@ -1,0 +1,25 @@
+using FishNet;
+using FishNet.Connection;
+using FishNet.Managing.Server;
+using FishNet.Object;
+using FishNet.Transporting;
+using UnityEngine;
+
+public class SimpleSpawner : MonoBehaviour
+{
+    [SerializeField] private NetworkObject _playerPrefab;
+
+    private void Start()
+    {
+        InstanceFinder.ServerManager.OnRemoteConnectionState += OnRemoteConnectionState;
+    }
+
+    private void OnRemoteConnectionState(NetworkConnection conn, RemoteConnectionStateArgs args)
+    {
+        if (args.ConnectionState != RemoteConnectionState.Started) return;
+        // Спавним игрока в нулевой позиции
+        NetworkObject player = Instantiate(_playerPrefab, Vector3.zero, Quaternion.identity);
+        InstanceFinder.ServerManager.Spawn(player, conn);
+        Debug.Log($"Player spawned for connection {conn.ClientId}");
+    }
+}
